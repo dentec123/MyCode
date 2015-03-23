@@ -26,10 +26,10 @@ struct elt
 	char shipName;
 };
 
-static unsigned long hash_function(unsigned long x, unsigned long y)
+static coord hash_function(coord x, coord y)
 {
 
-	unsigned long h;
+	coord h;
 
 	h = x * y * MULTIPLIER;
 
@@ -48,24 +48,20 @@ int positionCompare(struct position p, coord x, coord y)
 
 void deleteFromField(struct field *f, struct ship s)
 {
-	unsigned long x_hash;
-	unsigned long y_hash;
-	unsigned long h;
+
+	coord h;
 
 	coord x_coord = s.topLeft.x;
 	coord y_coord = s.topLeft.y;
-
-	x_hash = (unsigned long) s.topLeft.x;
-	y_hash = (unsigned long) s.topLeft.y;
 
 	struct elt **prev;
 	struct elt *e;
 
 	if (s.direction == HORIZONTAL) {
 		for (int i = 0; i < s.length; i++) {
-			x_hash += (unsigned long) i;
+
 			x_coord += (coord) i;
-			h = hash_function(x_hash, y_hash) % f->size;
+			h = hash_function(x_coord, y_coord) % f->size;
 
 			for (*prev = &(f->table[h]); *prev != 0; prev = &((*prev)->next)) {
 				if (!positionCompare((*prev)->filled, x_coord, y_coord)) {
@@ -83,9 +79,9 @@ void deleteFromField(struct field *f, struct ship s)
 	}
 	else if (s.direction == VERTICAL) {
 		for (int i = 0; i < s.length; i++) {
-			y_hash += (unsigned long) i;
+
 			y_coord += (coord) i;
-			h = hash_function(x_hash, y_hash) % f->size;
+			h = hash_function(x_coord, y_coord) % f->size;
 
 			for (*prev = &(f->table[h]); *prev != 0; prev = &((*prev)->next)) {
 				if (positionCompare((*prev)->filled, x_coord, y_coord)) {
@@ -102,13 +98,10 @@ void deleteFromField(struct field *f, struct ship s)
 }
 
 struct elt * isContained(struct field *f, coord x, coord y) {
-	unsigned long h;
+	coord h;
 	struct elt *e;
 
-	unsigned long x_hash = (unsigned long) x;
-	unsigned long y_hash = (unsigned long) y;
-
-	h = hash_function(x_hash, y_hash) % f->size;
+	h = hash_function(x_coord, y_coord) % f->size;
 
 	for (e = f->table[h]; e != 0; e = e->next) {
 		if (positionCompare(e->filled, x, y)) {
@@ -163,13 +156,9 @@ struct field * fieldCreateInternal(int size)
 // }
 
 void fieldShipGrow(struct field *f, struct ship s) {
-	unsigned long x_hash;
-	unsigned long y_hash;
-	unsigned long h;
-	int direction;
 
-	x_hash = (unsigned long) s.topLeft.x;
-	y_hash = (unsigned long) s.topLeft.y;
+	coord h;
+	int direction;
 
 	coord x_coord = s.topLeft.x;
 	coord y_coord = s.topLeft.y;
@@ -182,7 +171,7 @@ void fieldShipGrow(struct field *f, struct ship s) {
 
 	if (direction == HORIZONTAL) {
 		for(int i = 0; i < s.length; i++) {
-			x_hash += i;
+			
 			x_coord += i;
 
 			if (isContained(f, x_coord, y_coord) != NULL) {
@@ -206,7 +195,7 @@ void fieldShipGrow(struct field *f, struct ship s) {
 		}
 	if (direction == VERTICAL) {
 		for(int i = 0; i < s.length; i++) {
-			y_hash += i;
+
 			y_coord += i;
 
 			if (isContained(f, x_coord, y_coord) != NULL) {
@@ -253,13 +242,9 @@ static void grow(struct field *f)
 
 
 void fieldShipInsert(struct field *f, struct ship s) {
-	unsigned long x_hash;
-	unsigned long y_hash;
-	unsigned long h;
-	int direction;
 
-	x_hash = (unsigned long) s.topLeft.x;
-	y_hash = (unsigned long) s.topLeft.y;
+	coord h;
+	int direction;
 
 	coord x_coord = s.topLeft.x;
 	coord y_coord = s.topLeft.y;
@@ -267,12 +252,12 @@ void fieldShipInsert(struct field *f, struct ship s) {
 	direction = s.direction;
 
 	struct elt *e;
-	e = malloc(sizeof(*e));
+	e = malloc(sizeof(struct elt));
 	assert(e);
 
 	if (direction == HORIZONTAL) {
 		for(int i = 0; i < s.length; i++) {
-			x_hash += i;
+
 			x_coord += i;
 
 			if (isContained(f, x_coord, y_coord) != NULL) {
@@ -300,7 +285,7 @@ void fieldShipInsert(struct field *f, struct ship s) {
 	}
 	if (direction == VERTICAL) {
 		for(int i = 0; i < s.length; i++) {
-			y_hash += i;
+			
 			y_coord += i;
 
 			if (isContained(f, x_coord, y_coord) != NULL) {
@@ -366,13 +351,10 @@ void fieldPlaceShip(struct field *f, struct ship s)
 
 char fieldAttack(struct field *f, struct position p)
 {
-	unsigned long h;
+	coord h;
 	struct elt *e;
 
-	unsigned long x_hash = (unsigned long) p.x;
-	unsigned long y_hash = (unsigned long) p.y;
-	
-	h = hash_function(x_hash, y_hash) % f->size;
+	h = hash_function(p.x, p.y) % f->size;
 
 	for (e = f->table[h]; e != 0; e = e->next) {
 		if (positionCompare(e->filled, p.x, p.y)) {
