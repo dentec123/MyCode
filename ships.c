@@ -54,16 +54,16 @@ void deleteFromField(struct field *f, struct ship s)
 	coord x_coord = s.topLeft.x;
 	coord y_coord = s.topLeft.y;
 
-	struct elt **prev;
-	struct elt *e;
-
 	if (s.direction == HORIZONTAL) {
 		for (int i = 0; i < s.length; i++) {
-
+			
+			struct elt **prev;
+			struct elt *e;
+			
 			x_coord += (coord) i;
 			h = hash_function(x_coord, y_coord) % f->size;
 
-			for (*prev = &(f->table[h]); *prev != 0; prev = &((*prev)->next)) {
+			for (prev = &(f->table[h]); *prev != 0; prev = &((*prev)->next)) {
 				if (!positionCompare((*prev)->filled, x_coord, y_coord)) {
 					e = *prev;
 					*prev = e->next;
@@ -80,10 +80,13 @@ void deleteFromField(struct field *f, struct ship s)
 	else if (s.direction == VERTICAL) {
 		for (int i = 0; i < s.length; i++) {
 
+			struct elt **prev;
+			struct elt *e;
+
 			y_coord += (coord) i;
 			h = hash_function(x_coord, y_coord) % f->size;
 
-			for (*prev = &(f->table[h]); *prev != 0; prev = &((*prev)->next)) {
+			for (prev = &(f->table[h]); *prev != 0; prev = &((*prev)->next)) {
 				if (positionCompare((*prev)->filled, x_coord, y_coord)) {
 					e = *prev;
 					*prev = e->next;
